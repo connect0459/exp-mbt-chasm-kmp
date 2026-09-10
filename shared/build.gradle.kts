@@ -69,6 +69,11 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            // Chasm's Gradle plugin only adds what its own generated code
+            // needs to compile; using its lower-level embedding API
+            // directly (module/store/instance/invoke/readInt) requires
+            // this runtime artifact as an explicit dependency.
+            implementation(libs.chasm.runtime)
         }
     }
 }

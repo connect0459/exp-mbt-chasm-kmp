@@ -4,6 +4,8 @@ package "connect0459/mbt_chasm_kmp_guest"
 // Values
 pub fn increment(Int) -> Int
 
+pub fn move_point(Int, Int, Int, Int) -> (Int, Int)
+
 // Errors
 
 // Types and methods

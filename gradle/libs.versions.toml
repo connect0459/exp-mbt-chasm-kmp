@@ -2,8 +2,12 @@
 kotlin = "2.4.20"
 kotlinter = "5.7.0"
 chasm = "2.2.0-1.7.0"
+chasm-runtime = "1.7.0"
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 chasm = { id = "io.github.charlietap.chasm.gradle", version.ref = "chasm" }
+
+[libraries]
+chasm-runtime = { module = "io.github.charlietap.chasm:chasm", version.ref = "chasm-runtime" }
