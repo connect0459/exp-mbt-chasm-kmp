@@ -42,6 +42,9 @@ jobs:
               - 'build.gradle.kts'
               - 'gradle.properties'
               - 'gradle/**'
+              # guest.wasm is Chasm's codegen input for shared/; a guest/
+              # change (e.g. renaming an export) can break shared's build.
+              - 'guest/**'
 
   guest-lint:
     needs: changes
@@ -110,10 +113,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - uses: hustcer/setup-moonbit@87e2bdf5cf20d3b6f5c5f266a8a513f503bb5b76 # v1.25
+        with:
+          version: latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: temurin
           java-version: "21"
+
+      # Chasm's codegen plugin reads guest.wasm at configure/build time, so
+      # any Gradle task touching shared/ needs this to exist first.
+      - name: Build guest.wasm
+        working-directory: guest
+        run: |
+          moon update
+          moon build --target wasm --release
+          cp _build/wasm/release/build/mbt_chasm_kmp_guest.wasm ../shared/src/commonMain/resources/guest.wasm
 
       - name: Kotlin lint (kotlinter)
         run: ./gradlew lintKotlin
@@ -127,10 +145,23 @@ jobs:
         with:
           persist-credentials: false
 
+      - uses: hustcer/setup-moonbit@87e2bdf5cf20d3b6f5c5f266a8a513f503bb5b76 # v1.25
+        with:
+          version: latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: temurin
           java-version: "21"
+
+      - name: Build guest.wasm
+        working-directory: guest
+        run: |
+          moon update
+          moon build --target wasm --release
+          cp _build/wasm/release/build/mbt_chasm_kmp_guest.wasm ../shared/src/commonMain/resources/guest.wasm
 
       - name: Run JVM and iOS simulator tests
         run: ./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test

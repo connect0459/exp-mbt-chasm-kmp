@@ -21,6 +21,10 @@ local.properties
 *.iml
 .idea/
 
+# guest.wasm is a moon build artifact, not source; copy it from
+# guest/_build/wasm/release/build/ via `just build-guest-wasm`
+shared/src/commonMain/resources/*.wasm
+
 # Xcode / Swift (iosApp/, once scaffolded; see also github/gitignore Xcode.gitignore, Swift.gitignore)
 iosApp/**/xcuserdata/
 iosApp/**/*.hmap

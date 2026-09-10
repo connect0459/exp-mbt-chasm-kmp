@@ -1,6 +1,7 @@
 # Setup after clone
 setup:
     cd guest && moon update
+    just build-guest-wasm
     pre-commit install
 
 # Run tests for a single target (e.g. `just test-target wasm-gc`)
@@ -15,5 +16,12 @@ verify:
         just test-target $t; \
     done
 
-# Gradle/Kotlin recipes (build-shared, ios-generate, etc.) will be added
-# once `shared/` and `iosApp/` are scaffolded.
+# Build guest.wasm and copy it into shared/'s commonMain resources, where
+# Chasm's Gradle plugin (configured in shared/build.gradle.kts) reads it
+# from to generate Kotlin bindings. Required before any Gradle task that
+# touches shared/ — Chasm's codegen fails immediately without this file.
+build-guest-wasm:
+    cd guest && moon build --target wasm --release
+    cp guest/_build/wasm/release/build/mbt_chasm_kmp_guest.wasm shared/src/commonMain/resources/guest.wasm
+
+# iosApp/ recipes will be added once that Xcode project is scaffolded.
