@@ -61,7 +61,13 @@ val generateGuestWasmBytes =
 
 kotlin {
     jvm()
-    iosSimulatorArm64()
+    iosSimulatorArm64 {
+        // Required for the `embedAndSignAppleFrameworkForXcode` Gradle task
+        // (used by iosApp/'s Run Script build phase) to register at all.
+        binaries.framework {
+            baseName = "Shared"
+        }
+    }
 
     sourceSets {
         commonMain {

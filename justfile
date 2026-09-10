@@ -24,4 +24,9 @@ build-guest-wasm:
     cd guest && moon build --target wasm --release
     cp guest/_build/wasm/release/build/mbt_chasm_kmp_guest.wasm shared/src/commonMain/resources/guest.wasm
 
-# iosApp/ recipes will be added once that Xcode project is scaffolded.
+# Generate the Tuist-managed Xcode project for the iOS host. Requires
+# guest.wasm to exist first (Chasm's codegen reads it at Gradle configure
+# time, and Tuist's own `sources`/`resources` globs are scanned at
+# generate time too).
+ios-generate: build-guest-wasm
+    cd iosApp && tuist generate --no-open
