@@ -115,8 +115,8 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: ktlint check
-        run: ./gradlew ktlintCheck
+      - name: Kotlin lint (kotlinter)
+        run: ./gradlew lintKotlin
 
   shared-test:
     needs: changes
