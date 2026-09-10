@@ -18,8 +18,8 @@ This project may be released publicly. All of the following must be written in *
 ## Project Structure
 
 - **`guest/`** — a self-contained MoonBit module (its own `moon.mod`) compiled to `wasm`. This is the "guest" side of a wasm host/guest relationship: MoonBit is always the guest here, regardless of which KMP target is acting as host. It never touches `moon.mod` at the repository root, because the repository's primary build system is Gradle, not `moon` — see `docs/todo.md` for why this project deliberately reverses the module layout used by its sibling project `mbt-wasmkit-ios`.
-- **`shared/`** — the KMP module that consumes `guest.wasm` via Chasm's build-time Kotlin binding generator, and exposes the call surface to each platform target. Not yet scaffolded; this is the next milestone after the governance/tooling layer.
-- **`iosApp/`** — an Xcode project embedding `shared` as a Kotlin/Native framework, targeting `iosSimulatorArm64`. Not yet scaffolded.
+- **`shared/`** — the KMP module that consumes `guest.wasm` via Chasm's build-time Kotlin binding generator, and exposes the call surface to each platform target (`jvm`, `iosSimulatorArm64`).
+- **`iosApp/`** — a Tuist-managed Xcode project embedding `shared` as a Kotlin/Native framework (`Shared.framework`, via the `embedAndSignAppleFrameworkForXcode` direct-integration task — see [Kotlin's docs](https://kotlinlang.org/docs/multiplatform-direct-integration.html)), targeting `iosSimulatorArm64`.
 - **`docs/todo.md`** — the decision log: what's been verified, what broke, and why. Read it before changing the `guest`/`shared` boundary or the milestone scope.
 
 This project exists specifically because `mbt-wasmkit-ios/docs/todo.md` surveyed Chasm and declined to pursue it *within that project's scope* (a Swift/WasmKit iOS host), while flagging it as a real alternative worth evaluating on its own. This repository is that evaluation.

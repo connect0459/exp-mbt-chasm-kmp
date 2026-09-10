@@ -10,13 +10,13 @@ This project is that evaluation, carved out on its own so the decision doesn't h
 
 ## Status
 
-Governance and tooling scaffold only, so far. See [`docs/todo.md`](docs/todo.md) for the milestone plan and decision log.
+`increment(41) = 42` runs end-to-end: MoonBit `wasm` guest → Chasm interpreter (Kotlin/Native) → SwiftUI, on an iOS simulator. See [`docs/todo.md`](docs/todo.md) for the milestone plan and decision log.
 
 ## Project structure
 
-- `guest/` — MoonBit module compiled to `wasm` (not yet scaffolded)
-- `shared/` — KMP module consuming `guest.wasm` via Chasm's build-time binding generator (not yet scaffolded)
-- `iosApp/` — Xcode project embedding `shared` as a Kotlin/Native framework (not yet scaffolded)
+- `guest/` — MoonBit module compiled to `wasm`
+- `shared/` — KMP module consuming `guest.wasm` via Chasm's build-time binding generator, targeting `jvm` and `iosSimulatorArm64`
+- `iosApp/` — Tuist-managed Xcode project embedding `shared` as a Kotlin/Native framework
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup and workflow details.
 

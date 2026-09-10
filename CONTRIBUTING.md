@@ -5,8 +5,8 @@
 - [MoonBit toolchain](https://www.moonbitlang.com/download/) — `moon` CLI, for `guest/`
 - [just](https://just.systems/) — task runner
 - [pre-commit](https://pre-commit.com/) — hook runner
-- JDK + Gradle — for `shared/`, once scaffolded
-- [Xcode](https://developer.apple.com/xcode/) — for the `iosApp/` host, once scaffolded
+- JDK + Gradle — for `shared/`
+- [Xcode](https://developer.apple.com/xcode/) and [Tuist](https://tuist.dev/) — for the `iosApp/` host
 
 ## Setup
 
@@ -29,8 +29,8 @@ pre-commit run --all-files
 ## Project structure
 
 - `guest/` — a self-contained MoonBit module (its own `moon.mod`), compiled to `wasm`. This is the "guest" side of a wasm host/guest relationship, the same shape used by the sibling project `mbt-wasmkit-ios` (there, the host is Swift/WasmKit; here, it is Kotlin/Chasm).
-- `shared/` — the KMP module consuming `guest.wasm` via Chasm's build-time Kotlin binding generator. Not yet scaffolded.
-- `iosApp/` — the Xcode project embedding `shared` as a Kotlin/Native framework, targeting `iosSimulatorArm64`. Not yet scaffolded.
+- `shared/` — the KMP module consuming `guest.wasm` via Chasm's build-time Kotlin binding generator, targeting `jvm` and `iosSimulatorArm64`.
+- `iosApp/` — the Tuist-managed Xcode project embedding `shared` as a Kotlin/Native framework, via the `embedAndSignAppleFrameworkForXcode` direct-integration task.
 - `docs/todo.md` — the log of what's been verified, what broke, and why. Read it before changing the `guest`/`shared` boundary.
 
 ## Development workflow
@@ -43,8 +43,9 @@ pre-commit run --all-files
 | `cd guest && moon check` | Type-check `guest/` without building |
 | `cd guest && moon info` | Regenerate `guest/`'s `.mbti` interface file |
 | `just verify` | Run the full `guest/` CI-equivalent check locally |
-
-Gradle/Kotlin commands will be added to this table once `shared/`/`iosApp/` are scaffolded.
+| `./gradlew lintKotlin` / `formatKotlin` | Lint / auto-format `shared/`'s Kotlin sources |
+| `./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test` | Run `shared/` tests on both targets |
+| `just ios-generate` | `build-guest-wasm`, then generate the Tuist-managed `iosApp/` Xcode project |
 
 Before opening a pull request touching `guest/`, run:
 
@@ -89,7 +90,7 @@ docs: record Milestone 1 binding-generation results
 2. Follow the Red → Green → Refactor cycle for `guest/` changes.
 3. Run `just verify` and commit any resulting diffs.
 4. If the change touches `guest/`'s exported API, run `moon info` (inside `guest/`) and verify the `.mbti` diff is expected.
-5. If the change affects `shared/`/`iosApp/`, confirm the relevant platform target still builds and runs (once those are scaffolded).
+5. If the change affects `shared/`/`iosApp/`, confirm the relevant platform target still builds and runs — `./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test` and/or a simulator run via `just ios-generate`.
 6. Update `docs/todo.md` if the change resolves an open question or surfaces a new one — this file is the project's primary record, more so than commit messages alone.
 7. Open a pull request.
 
