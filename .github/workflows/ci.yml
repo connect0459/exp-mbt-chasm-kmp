@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       guest: ${{ steps.filter.outputs.guest }}
+      shared: ${{ steps.filter.outputs.shared }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -34,6 +35,13 @@ jobs:
             guest:
               - '.github/workflows/ci.yml'
               - 'guest/**'
+            shared:
+              - '.github/workflows/ci.yml'
+              - 'shared/**'
+              - 'settings.gradle.kts'
+              - 'build.gradle.kts'
+              - 'gradle.properties'
+              - 'gradle/**'
 
   guest-lint:
     needs: changes
@@ -91,8 +99,41 @@ jobs:
       - name: Test all targets
         run: moon test --target all
 
-  # A `shared-*`/Kotlin job set will be added once `shared/` is scaffolded
-  # (Gradle build + iosSimulatorArm64 test run).
+  # macos-* runner required: building the iosSimulatorArm64 target needs
+  # Xcode's toolchain, which is unavailable on ubuntu/windows runners.
+  shared-lint:
+    needs: changes
+    if: needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: ktlint check
+        run: ./gradlew ktlintCheck
+
+  shared-test:
+    needs: changes
+    if: needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Run JVM and iOS simulator tests
+        run: ./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test
 
   # Single point of truth for branch protection
   gate:
@@ -101,6 +142,8 @@ jobs:
       - changes
       - guest-lint
       - guest-test
+      - shared-lint
+      - shared-test
     if: always()
     steps:
       - name: Verify all required jobs succeeded
