@@ -1,6 +1,6 @@
 # todo - mbt-chasm-kmp
 
-Current state: **Milestone 0 (governance/tooling scaffold) is done. Milestone 1's `guest/` MoonBit module is scaffolded, with `increment` exported and passing on all four backends.** No Kotlin/Gradle code exists yet.
+Current state: **Milestone 0 (governance/tooling scaffold) is done. Milestone 1's `guest/` MoonBit module and the KMP Gradle scaffold (`shared/`, targeting `jvm` + `iosSimulatorArm64`) both exist and pass their respective tests.** Chasm itself is not wired up yet — `shared/` currently only proves the multiplatform build/test mechanism works via an `expect`/`actual` probe, independent of `guest/`.
 
 ---
 
@@ -35,7 +35,14 @@ Goal: verify whether Chasm can load a MoonBit-compiled `wasm` module, generate K
 - [x] `moon info`, `moon fmt`, `moon check --deny-warn --target all`, `moon test --target all` all pass (js / wasm / wasm-gc / native)
 - [x] `moon build --target wasm --release` then `wasm2wat` confirms the same trivial shape `mbt-wasmkit-ios` found for `increment`: `(func (param i32) (result i32) local.get 0 i32.const 1 i32.add)`, no MoonBit GC/runtime overhead
 - [x] `pre-commit run --all-files` passes with `guest/` staged (the `moon-fmt`/`moon-check`/`moon-test` local hooks correctly scope to `guest/` via their `cd guest &&` entries and `^guest/.*` file filter)
-- [ ] Scaffold the KMP Gradle project (`settings.gradle.kts`, `shared/` module, `iosSimulatorArm64` + a JVM target)
+- [x] Scaffolded the KMP Gradle project: `settings.gradle.kts` + root `build.gradle.kts` (group `dev.connect0459.mbtchasmkmp`) + `gradle/libs.versions.toml` (Kotlin 2.4.20, matching the locally installed compiler), `shared/` module targeting `jvm()` and `iosSimulatorArm64()`. Generated the Gradle wrapper via `gradle wrapper --gradle-version 9.7.1` rather than hand-writing it
+  - TDD: wrote `PlatformTest.kt` calling `platformName()` first (Red — `./gradlew :shared:jvmTest` fails with "Unresolved reference 'platformName'"), then added the classic KMP `expect fun platformName(): String` (commonMain) with `actual` implementations in `jvmMain`/`iosSimulatorArm64Main` (Green) — this is a scaffold-health probe, not the Chasm binding surface itself; deliberately not named `increment` so it isn't confused with the guest export once Chasm is wired in
+  - `./gradlew :shared:jvmTest` and `./gradlew :shared:iosSimulatorArm64Test` both pass. The first `iosSimulatorArm64Test` run downloaded the Kotlin/Native compiler + LLVM/sysroot bundle (one-time, ~1m13s); subsequent runs will be faster
+  - Local note (not committed): this sandbox's plain `java`/`./gradlew` invocation couldn't locate a JRE via the usual mechanisms (`/usr/libexec/java_home` also failed) even though a JDK was installed via Homebrew and the standalone `gradle` CLI found it fine; had to export `JAVA_HOME` explicitly per command. Likely a sandbox-shell-only quirk (no shell profile sourced), not a project configuration problem — no fix applied to the repo itself
+- [x] Added ktlint (`org.jlleitschuh.gradle.ktlint`) to `shared/build.gradle.kts`; `./gradlew ktlintCheck` passes
+- [x] Added a `ktlint-format` local pre-commit hook (`./gradlew ktlintFormat`, matching the auto-fix convention the other hooks already use) scoped to `\.kts?$` files. Deliberately did **not** add a compile/test hook for Kotlin the way `moon-check`/`moon-test` exist for `guest/` — a full multiplatform build (especially first-time Kotlin/Native downloads) is too slow for a pre-commit hook; that heavier check now lives in CI's `shared-lint`/`shared-test` jobs instead. This is an intentional asymmetry with the MoonBit hooks, not an oversight
+- [x] Added `shared-lint` (`ktlintCheck`) and `shared-test` (`:shared:jvmTest :shared:iosSimulatorArm64Test`) jobs to `ci.yml`, gated on a new `shared` path filter, running on `macos-latest` (an `iosSimulatorArm64` build needs Xcode, unavailable on `ubuntu-latest`) — resolves the placeholder comment left there when `guest/` CI was first written
+  - Caught and fixed a mistake before committing: the first draft pinned `actions/setup-java` to a fabricated commit SHA (looked plausible, wasn't real). Verified the actual tag SHA via `git ls-remote --tags` before using it — a reminder to verify any hash-pinned action rather than pattern-matching one
 - [ ] Add Chasm's Gradle plugin to `shared/`, point it at `guest.wasm`, confirm it generates a Kotlin class/interface pair for `increment`
 - [ ] Call `increment` from a `shared` test running on the `iosSimulatorArm64` Kotlin/Native target — no Xcode packaging yet
 - [ ] Call `increment` from a `shared` test running on the JVM target, for comparison
