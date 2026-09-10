@@ -1,0 +1,31 @@
+.DS_Store
+
+# APM dependencies
+apm_modules/
+.agents/
+.claude/
+
+# MoonBit guest module build artifacts (guest/ is the moon.mod root, not repo root)
+guest/_build/
+guest/.mooncakes/
+guest/.moonagent/
+guest/*.coverage
+guest/_coverage/
+guest/trace.json
+
+# Gradle / Kotlin (shared/, and any other Gradle module once scaffolded)
+.gradle/
+build/
+*/build/
+local.properties
+*.iml
+.idea/
+
+# Xcode / Swift (iosApp/, once scaffolded; see also github/gitignore Xcode.gitignore, Swift.gitignore)
+iosApp/**/xcuserdata/
+iosApp/**/*.hmap
+iosApp/**/*.dSYM
+iosApp/**/*.dSYM.zip
+iosApp/*.xcodeproj/
+iosApp/*.xcworkspace/
+iosApp/Derived/
