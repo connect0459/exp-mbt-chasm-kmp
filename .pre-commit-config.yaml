@@ -37,3 +37,9 @@ repos:
         language: system
         files: '^guest/.*\.mbt(\.md)?$'
         pass_filenames: false
+      - id: ktlint-format
+        name: Kotlin Format (ktlint)
+        entry: ./gradlew ktlintFormat
+        language: system
+        files: '\.kts?$'
+        pass_filenames: false
