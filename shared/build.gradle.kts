@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.kotlinter)
     alias(libs.plugins.chasm)
 }
@@ -66,6 +67,21 @@ kotlin {
     jvmToolchain(21)
 
     jvm()
+    android {
+        namespace = "dev.connect0459.mbtchasmkmp.shared"
+        compileSdk = 36
+        minSdk = 24
+
+        // androidHostTest: fast local-JVM sanity check (like commonTest,
+        // but against Android SDK stubs). androidDeviceTest: the real
+        // deliverable for this milestone — runs on an actual
+        // emulator/device (ART), same reasoning as testing on
+        // iosSimulatorArm64 instead of only jvm.
+        withHostTestBuilder {}.configure {}
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }
+    }
     iosSimulatorArm64 {
         // Required for the `embedAndSignAppleFrameworkForXcode` Gradle task
         // (used by iosApp/'s Run Script build phase) to register at all.
@@ -88,6 +104,16 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+        }
+        // The Android KMP plugin declares an androidx.test.runner.AndroidJUnitRunner
+        // instrumentation in the test manifest automatically, but doesn't add the
+        // artifact that class lives in — without it, the on-device test APK crashes
+        // with ClassNotFoundException before running anything.
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.ext.junit)
+            }
         }
     }
 }
