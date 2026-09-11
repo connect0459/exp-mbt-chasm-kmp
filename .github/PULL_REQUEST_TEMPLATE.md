@@ -5,9 +5,9 @@
 ## Related Links
 
 - Issues
-  - <!-- <https://github.com/connect0459/mbt-chasm-kmp/issues/xxx> -->
+  - <!-- <https://github.com/connect0459/exp-mbt-chasm-kmp/issues/xxx> -->
 - PRs
-  - <!-- <https://github.com/connect0459/mbt-chasm-kmp/pull/xxx> -->
+  - <!-- <https://github.com/connect0459/exp-mbt-chasm-kmp/pull/xxx> -->
 
 ## [Required] Overview
 

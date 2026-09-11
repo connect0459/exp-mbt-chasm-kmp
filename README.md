@@ -1,12 +1,12 @@
-# mbt-chasm-kmp
+# exp-mbt-chasm-kmp
 
 An experimental spike evaluating whether [Chasm](https://github.com/CharlieTap/chasm) (a Wasm interpreter written in Kotlin Multiplatform) can serve as a single host runtime for MoonBit-compiled `wasm` logic on both iOS and Android.
 
 ## Background
 
-The sibling project [`mbt-wasmkit-ios`](https://github.com/connect0459/mbt-wasmkit-ios) verified a MoonBit `wasm` guest → Swift/[WasmKit](https://github.com/swiftwasm/WasmKit) host round trip on iOS, but is iOS-only by construction (WasmKit is a Swift package). Its `docs/todo.md` surveyed Chasm as a KMP-based alternative that could in principle unify the iOS and Android hosts into one implementation, but declined to pursue it within that project's scope — adopting Chasm there would mean rewriting the host app itself in Kotlin Multiplatform instead of Swift, a materially different architecture.
+The sibling project [`exp-mbt-wasmkit-ios`](https://github.com/connect0459/exp-mbt-wasmkit-ios) verified a MoonBit `wasm` guest → Swift/[WasmKit](https://github.com/swiftwasm/WasmKit) host round trip on iOS, but is iOS-only by construction (WasmKit is a Swift package). Its `docs/todo.md` surveyed Chasm as a KMP-based alternative that could in principle unify the iOS and Android hosts into one implementation, but declined to pursue it within that project's scope — adopting Chasm there would mean rewriting the host app itself in Kotlin Multiplatform instead of Swift, a materially different architecture.
 
-This project is that evaluation, carved out on its own so the decision doesn't have to be made inside `mbt-wasmkit-ios`.
+This project is that evaluation, carved out on its own so the decision doesn't have to be made inside `exp-mbt-wasmkit-ios`.
 
 ## Status
 
@@ -21,12 +21,12 @@ This project is that evaluation, carved out on its own so the decision doesn't h
 
 ## Documentation
 
-See [docs/todo.md](https://github.com/connect0459/mbt-chasm-kmp/blob/main/docs/todo.md) for the milestone plan and decision log — the project's primary record of what's been verified, what broke, and why.
+See [docs/todo.md](https://github.com/connect0459/exp-mbt-chasm-kmp/blob/main/docs/todo.md) for the milestone plan and decision log — the project's primary record of what's been verified, what broke, and why.
 
 ## Contributing
 
-See [CONTRIBUTING.md](https://github.com/connect0459/mbt-chasm-kmp/blob/main/CONTRIBUTING.md).
+See [CONTRIBUTING.md](https://github.com/connect0459/exp-mbt-chasm-kmp/blob/main/CONTRIBUTING.md).
 
 ## License
 
-[Apache-2.0](https://github.com/connect0459/mbt-chasm-kmp/blob/main/LICENSE)
+[Apache-2.0](https://github.com/connect0459/exp-mbt-chasm-kmp/blob/main/LICENSE)

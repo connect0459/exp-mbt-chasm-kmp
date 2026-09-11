@@ -1,6 +1,6 @@
-name: mbt-chasm-kmp
+name: exp-mbt-chasm-kmp
 version: 0.1.0
-description: APM project for mbt-chasm-kmp
+description: APM project for exp-mbt-chasm-kmp
 author: connect0459
 dependencies:
   apm:

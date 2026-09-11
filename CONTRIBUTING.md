@@ -12,8 +12,8 @@
 ## Setup
 
 ```sh
-git clone https://github.com/connect0459/mbt-chasm-kmp
-cd mbt-chasm-kmp
+git clone https://github.com/connect0459/exp-mbt-chasm-kmp
+cd exp-mbt-chasm-kmp
 just setup
 ```
 
@@ -29,7 +29,7 @@ pre-commit run --all-files
 
 ## Project structure
 
-- `guest/` — a self-contained MoonBit module (its own `moon.mod`), compiled to `wasm`. This is the "guest" side of a wasm host/guest relationship, the same shape used by the sibling project `mbt-wasmkit-ios` (there, the host is Swift/WasmKit; here, it is Kotlin/Chasm).
+- `guest/` — a self-contained MoonBit module (its own `moon.mod`), compiled to `wasm`. This is the "guest" side of a wasm host/guest relationship, the same shape used by the sibling project `exp-mbt-wasmkit-ios` (there, the host is Swift/WasmKit; here, it is Kotlin/Chasm).
 - `shared/` — the KMP module consuming `guest.wasm` via Chasm's build-time Kotlin binding generator, targeting `jvm`, `iosSimulatorArm64`, and `android`.
 - `iosApp/` — the Tuist-managed Xcode project embedding `shared` as a Kotlin/Native framework, via the `embedAndSignAppleFrameworkForXcode` direct-integration task.
 - `androidApp/` — a plain `com.android.application` module depending on `shared` as a regular Gradle project dependency.
@@ -66,7 +66,7 @@ This project follows **Red → Green → Refactor** (Detroit-school TDD):
 - Write a failing test first, then implement.
 - Use real objects; mocks are only permitted at external boundaries.
 - Test names describe **what business rule** is verified, not how.
-- Exception: exploratory spikes (verifying whether Chasm's generated bindings can call a given MoonBit export shape, or whether a KMP target builds at all) may skip test-first with explicit agreement — discard or rewrite as a proper implementation afterward. This is expected to be the norm early on, as with `mbt-wasmkit-ios`.
+- Exception: exploratory spikes (verifying whether Chasm's generated bindings can call a given MoonBit export shape, or whether a KMP target builds at all) may skip test-first with explicit agreement — discard or rewrite as a proper implementation afterward. This is expected to be the norm early on, as with `exp-mbt-wasmkit-ios`.
 
 ## Commit format
 

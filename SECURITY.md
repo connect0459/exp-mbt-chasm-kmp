@@ -20,14 +20,14 @@ Only the `main` branch is maintained. There are no tagged releases.
 
 Use GitHub's [private vulnerability reporting][private-report] feature to disclose issues confidentially. You will receive an acknowledgment within **5 business days** and a resolution timeline once the report has been triaged.
 
-[private-report]: https://github.com/connect0459/mbt-chasm-kmp/security/advisories/new
+[private-report]: https://github.com/connect0459/exp-mbt-chasm-kmp/security/advisories/new
 
 ## Scope
 
 The following vulnerability classes are in scope for this project:
 
 - **Sandbox escapes at the guest/host boundary** — any way for code running inside `guest.wasm` (via Chasm's interpreter, embedded in the `shared` KMP module) to read or write memory, call functions, or otherwise affect the host process outside the linear memory and exported functions Chasm explicitly grants it.
-- **Memory-safety bugs in the Kotlin host bridge** — once `shared/` reads guest linear memory directly (e.g. a heap-boxed return value, mirroring the pointer-read pattern `mbt-wasmkit-ios/ios/Sources/GuestBridge.swift` uses against WasmKit), an out-of-bounds read/write there is in scope.
+- **Memory-safety bugs in the Kotlin host bridge** — once `shared/` reads guest linear memory directly (e.g. a heap-boxed return value, mirroring the pointer-read pattern `exp-mbt-wasmkit-ios/ios/Sources/GuestBridge.swift` uses against WasmKit), an out-of-bounds read/write there is in scope.
 - **Supply-chain issues in pinned dependencies** — once `shared/build.gradle.kts` pins Chasm and its transitive dependencies to exact versions, a compromised release of any of them is in scope for a coordinated response, even though the fix (bump the pin) lives upstream.
 
 The following are **out of scope**:
