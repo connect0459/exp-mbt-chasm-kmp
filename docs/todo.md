@@ -1,6 +1,6 @@
 # todo - mbt-chasm-kmp
 
-Current state: **Milestone 1 is functionally complete: `increment(41) = 42` runs end-to-end on an iOS simulator — MoonBit `wasm` guest → Chasm interpreter (Kotlin/Native, via `iosApp/`'s embedded `Shared.framework`) → SwiftUI.** Only call-overhead measurement remains on the checklist.
+Current state: **Milestone 1 is complete.** `increment(41) = 42` runs end-to-end on an iOS simulator — MoonBit `wasm` guest → Chasm interpreter (Kotlin/Native, via `iosApp/`'s embedded `Shared.framework`) → SwiftUI — and call-overhead is measured on both `jvm` and `iosSimulatorArm64`: Chasm is consistently faster than `mbt-wasmkit-ios`'s WasmKit in absolute terms, with the same ~5x scalar-vs-boxed-tuple ratio on both hosts. No blocker found for either the Chasm/KMP route or the WasmKit/Swift route on call overhead alone.
 
 ---
 
@@ -53,7 +53,7 @@ Goal: verify whether Chasm can load a MoonBit-compiled `wasm` module, generate K
   - `wasm2wat` confirms the identical shape `mbt-wasmkit-ios` found: MoonBit heap-allocates an 8-byte boxed tuple and returns a pointer (`i32`), `x'` at offset 0 and `y'` at offset 4 — this is a MoonBit codegen characteristic, independent of which wasm host reads it
   - Regenerated Chasm's codegen and inspected the output directly: `GuestService.movePoint(p0: Int, p1: Int, p2: Int, p3: Int): Int` — a plain `Int` return. Chasm's codegen has function-level config for string returns (`stringReturnType()`, several encoding strategies) but nothing analogous for a raw struct/tuple pointer; it only ever sees a wasm signature `(i32,i32,i32,i32) -> i32` and has no MoonBit-specific (or general boxed-value) awareness
   - **The generated `GuestServiceImpl` can't be used to decode the pointer**: it encapsulates its `store`/`instance` privately, and a memory pointer is only meaningful within the exact store/instance that produced it. Decoding requires bypassing the generated wrapper entirely and using Chasm's public low-level embedding API directly: `module(bytes)` → `store()` → `instance(store, module, imports)` → `invoke(store, instance, "move_point", listOf(NumberValue.I32(...), ...))` → take the returned `Int` as a pointer → `exports(instance).first { it.name == "memory" }.value as Memory` → `readInt(store, memory, pointer)` / `readInt(store, memory, pointer + 4)`
-  - This needs `io.github.charlietap.chasm:chasm` (the runtime library) as an explicit `commonTest` dependency — the Gradle plugin only pulls in what its own generated code needs, not this lower-level API
+  - This needs `io.github.charlietap.chasm:chasm` (the runtime library) as an explicit dependency (originally added to `commonTest`; moved to `commonMain` once `GuestBenchmark`'s `move_point` measurement needed it too, since it isn't test-only anymore) — the Gradle plugin only pulls in what its own generated code needs, not this lower-level API
   - **Verified**: `GuestMemoryTest.movePointReturnsAPointerToAHeapAllocatedTupleInLinearMemory` passes on both `jvm` and `iosSimulatorArm64`, decoding `move_point(10, 20, 3, -5)` back to `(13, 15)`
   - **Conclusion**: Chasm is no better or worse than WasmKit here — both require the same manual pointer/linear-memory decoding for MoonBit's boxed-tuple returns, because this is a MoonBit-side characteristic (not something either host's codegen abstracts away). Chasm's codegen is a convenience layer for scalar-in/scalar-out (and string) exports; anything else still needs its low-level API, same as `mbt-wasmkit-ios`'s hand-written `GuestBridge.swift` needed WasmKit's low-level memory access
 - [x] **Scaffolded `iosApp/`**, a Tuist-managed Xcode project, using Kotlin's officially documented "direct integration" method (no CocoaPods) rather than guessing at Xcode build settings
@@ -65,7 +65,22 @@ Goal: verify whether Chasm can load a MoonBit-compiled `wasm` module, generate K
   - **Verified end-to-end**: `tuist generate`, `xcodebuild ... build` (succeeded on the first attempt — the doc's steps were sufficient as written), then `simctl install`/`launch`/`io screenshot` on `iPhone 17` (iOS 26.5) — screen shows `increment(41) = 42`
   - `just ios-generate` (`build-guest-wasm` then `tuist generate`) added, mirroring `mbt-wasmkit-ios`'s recipe of the same name. `iosApp/*.xcodeproj`, `*.xcworkspace`, `Derived/` already covered by the `.gitignore` patterns stubbed during Milestone 0
   - **Deliberately no iOS CI job**: an Xcode+Tuist+simulator build is significantly more setup than `shared-lint`/`shared-test`'s plain Gradle+Java steps, and this wasn't asked for. Left as an open question below, not a silent omission
-- [ ] Record any call-overhead measurement using the same methodology as `mbt-wasmkit-ios` (separate one-time setup cost from per-call cost, loop over many calls), so the two projects' numbers are comparable
+- [x] **Recorded call-overhead measurements**, same methodology as `mbt-wasmkit-ios` (one-time setup cost separated from per-call cost, 100,000 iterations, `increment` vs `move_point` for the scalar-vs-boxed-tuple comparison)
+  - `GuestBenchmark.kt` (`commonMain`): `benchmarkIncrement`/`benchmarkMovePoint`, timed with `kotlin.time.TimeSource.Monotonic` (portable across targets, unlike Swift's `CFAbsoluteTimeGetCurrent` which `mbt-wasmkit-ios` used). `move_point`'s benchmark uses the low-level embedding API directly, same as `GuestMemoryTest`, for the same reason (`GuestServiceImpl` can't be reused across a pointer read)
+  - A small portability snag: `kotlin.text.String.format` (used for the JVM-only print test) doesn't exist on Kotlin/Native — replaced with a manual `round3()` helper (`kotlin.math.round`) shared by both platform-specific print tests, rather than maintaining two different formatting implementations
+  - `GuestBenchmarkTest.kt` (`commonTest`, 1,000 iterations): sanity-checks both benchmarks run and report non-negative timings on every target — not a performance assertion (flaky by nature), just confirms the code path works
+  - `GuestBenchmarkJvmTest.kt` / `GuestBenchmarkIosSimulatorArm64Test.kt` (platform-specific, 100,000 iterations): print formatted results via `println`, captured with `--tests "..." --rerun -i`
+  - `iosApp/Sources/ContentView.swift` now also displays both benchmarks (mirroring `mbt-wasmkit-ios`'s exact on-screen format) — rebuilt, reinstalled, relaunched, screenshotted on the same `iPhone 17` simulator to get an actual app-embedded number, not just a bare test-binary one
+  - **Results** (100,000 calls each; `mbt-wasmkit-ios`'s WasmKit numbers from the same simulator generation, for comparison):
+
+    | Target | `increment` (µs/call) | `move_point` (µs/call) | ratio |
+    | :--- | ---: | ---: | ---: |
+    | JVM (`jvmTest`) | 0.563 | 1.449 | ~2.6x |
+    | `iosSimulatorArm64` (bare Kotlin/Native test) | 3.817 | 20.015 | ~5.2x |
+    | `iosSimulatorArm64` (via `iosApp/`, app-embedded) | 3.602 | 19.459 | ~5.4x |
+    | `mbt-wasmkit-ios` (WasmKit, via its iOS app) | 6.378 | 32.215 | ~5.0x |
+
+  - **Reading**: the scalar-vs-boxed-tuple ratio (~5x) is nearly identical between Chasm and WasmKit — confirms the earlier conclusion that this multiplier comes from MoonBit's own guest-side allocator, not from either host. Chasm on Kotlin/Native is consistently faster in absolute terms than WasmKit here (~1.7x for `increment`, ~1.6x for `move_point`), and the JVM target is faster again on top of that (unsurprising: JIT-compiled bytecode vs. an interpreter). All four numbers clear the same "modest 2D game" headroom bar `mbt-wasmkit-ios` set (a few dozen draw calls + input polling per frame is one to two orders of magnitude below even the slowest number here) — on this evidence, call overhead is not a blocker for either host
 
 ## Open questions
 
