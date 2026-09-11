@@ -23,8 +23,8 @@ This project is that evaluation, carved out separately so the decision doesn't h
 
 - [x] Ported `AGENTS.md`/`CLAUDE.md`, `.markdownlint.json`, `.pre-commit-config.yaml`, `apm.yml`, `.github/` (CI, Copilot setup, issue/PR templates), `justfile`, `LICENSE`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `README.md` from `mbt-wasmkit-ios`, adapting each for this project's inverted structure (Gradle/KMP-primary, `moon.mod` inside `guest/` rather than at the repository root) and narrower scope (no `publish.yml`; see decisions above)
 - [x] `git init` and initial commit, then the rest committed in concern-based commits (AGENTS/CLAUDE, tooling config, CI, GitHub templates, community health files, decision log) — done by the user and this agent together
-- [ ] Create the GitHub remote (`connect0459/mbt-chasm-kmp`) and push — deferred; the user will do this themselves, developing locally until then
-- [ ] Run `apm install` (or equivalent) to populate `apm_modules/`/`.claude/skills` from `apm.yml` — not done yet, not blocking `guest/` work
+- [x] Created the GitHub remote (`connect0459/mbt-chasm-kmp`, private) and pushed — done by the user; CI initially failed twice on the fresh remote (a missing `guest.wasm` resources directory on a clean checkout, and `dorny/paths-filter` needing `fetch-depth: 0` on a private repo), both fixed
+- [x] Ran `apm install` to populate `apm_modules/`/`.claude/skills` from `apm.yml`; `apm.lock.yaml` committed (both `apm_modules/` and `.claude/` stay gitignored, per this file's own `.gitignore`)
 
 ## Milestone 1: Minimal Chasm round trip (MoonBit `wasm` → Chasm → Kotlin/Native call, then iOS simulator)
 
