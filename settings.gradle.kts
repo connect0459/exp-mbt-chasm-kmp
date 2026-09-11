@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "mbt-chasm-kmp"
+rootProject.name = "exp-mbt-chasm-kmp"
 
 include(":shared")
 include(":androidApp")

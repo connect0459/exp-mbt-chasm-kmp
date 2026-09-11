@@ -23,7 +23,7 @@ verify:
 build-guest-wasm:
     cd guest && moon build --target wasm --release
     mkdir -p shared/src/commonMain/resources
-    cp guest/_build/wasm/release/build/mbt_chasm_kmp_guest.wasm shared/src/commonMain/resources/guest.wasm
+    cp guest/_build/wasm/release/build/exp_mbt_chasm_kmp_guest.wasm shared/src/commonMain/resources/guest.wasm
 
 # Generate the Tuist-managed Xcode project for the iOS host. Requires
 # guest.wasm to exist first (Chasm's codegen reads it at Gradle configure

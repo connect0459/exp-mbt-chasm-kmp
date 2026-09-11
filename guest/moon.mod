@@ -9,7 +9,7 @@
 //   "moonbitlang/x@0.4.6",
 // }
 
-name = "connect0459/mbt_chasm_kmp_guest"
+name = "connect0459/exp_mbt_chasm_kmp_guest"
 
 version = "0.1.0"
 

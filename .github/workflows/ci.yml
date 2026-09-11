@@ -133,7 +133,7 @@ jobs:
           moon update
           moon build --target wasm --release
           mkdir -p ../shared/src/commonMain/resources
-          cp _build/wasm/release/build/mbt_chasm_kmp_guest.wasm ../shared/src/commonMain/resources/guest.wasm
+          cp _build/wasm/release/build/exp_mbt_chasm_kmp_guest.wasm ../shared/src/commonMain/resources/guest.wasm
 
       - name: Kotlin lint (kotlinter)
         run: ./gradlew lintKotlin
@@ -164,7 +164,7 @@ jobs:
           moon update
           moon build --target wasm --release
           mkdir -p ../shared/src/commonMain/resources
-          cp _build/wasm/release/build/mbt_chasm_kmp_guest.wasm ../shared/src/commonMain/resources/guest.wasm
+          cp _build/wasm/release/build/exp_mbt_chasm_kmp_guest.wasm ../shared/src/commonMain/resources/guest.wasm
 
       - name: Run JVM and iOS simulator tests
         run: ./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test
