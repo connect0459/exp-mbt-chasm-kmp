@@ -10,7 +10,7 @@ This project is that evaluation, carved out on its own so the decision doesn't h
 
 ## Status
 
-`increment(41) = 42` runs end-to-end: MoonBit `wasm` guest → Chasm interpreter (Kotlin/Native) → SwiftUI, on an iOS simulator. See [`docs/todo.md`](docs/todo.md) for the milestone plan and decision log.
+`increment(41) = 42` runs end-to-end: MoonBit `wasm` guest → Chasm interpreter (Kotlin/Native) → SwiftUI, on an iOS simulator.
 
 ## Project structure
 
@@ -18,8 +18,14 @@ This project is that evaluation, carved out on its own so the decision doesn't h
 - `shared/` — KMP module consuming `guest.wasm` via Chasm's build-time binding generator, targeting `jvm` and `iosSimulatorArm64`
 - `iosApp/` — Tuist-managed Xcode project embedding `shared` as a Kotlin/Native framework
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup and workflow details.
+## Documentation
+
+See [docs/todo.md](https://github.com/connect0459/mbt-chasm-kmp/blob/main/docs/todo.md) for the milestone plan and decision log — the project's primary record of what's been verified, what broke, and why.
+
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/connect0459/mbt-chasm-kmp/blob/main/CONTRIBUTING.md).
 
 ## License
 
-[Apache-2.0](LICENSE)
+[Apache-2.0](https://github.com/connect0459/mbt-chasm-kmp/blob/main/LICENSE)
