@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        google()
         gradlePluginPortal()
         mavenCentral()
     }
@@ -13,6 +14,7 @@ plugins {
 
 dependencyResolutionManagement {
     repositories {
+        google()
         mavenCentral()
     }
 }
@@ -20,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "mbt-chasm-kmp"
 
 include(":shared")
+include(":androidApp")
