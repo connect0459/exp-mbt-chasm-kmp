@@ -15,6 +15,7 @@ guest/trace.json
 
 # Gradle / Kotlin (shared/, and any other Gradle module once scaffolded)
 .gradle/
+.kotlin/
 build/
 */build/
 local.properties
