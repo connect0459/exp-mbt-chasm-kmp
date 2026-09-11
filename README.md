@@ -10,13 +10,14 @@ This project is that evaluation, carved out on its own so the decision doesn't h
 
 ## Status
 
-`increment(41) = 42` runs end-to-end: MoonBit `wasm` guest → Chasm interpreter (Kotlin/Native) → SwiftUI, on an iOS simulator.
+`increment(41) = 42` runs end-to-end: MoonBit `wasm` guest → Chasm interpreter → native UI, on both an iOS simulator (Kotlin/Native → SwiftUI) and an Android emulator (ART → a plain Android `View`).
 
 ## Project structure
 
 - `guest/` — MoonBit module compiled to `wasm`
-- `shared/` — KMP module consuming `guest.wasm` via Chasm's build-time binding generator, targeting `jvm` and `iosSimulatorArm64`
+- `shared/` — KMP module consuming `guest.wasm` via Chasm's build-time binding generator, targeting `jvm`, `iosSimulatorArm64`, and `android`
 - `iosApp/` — Tuist-managed Xcode project embedding `shared` as a Kotlin/Native framework
+- `androidApp/` — Android application module depending on `shared` directly
 
 ## Documentation
 

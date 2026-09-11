@@ -7,6 +7,7 @@
 - [pre-commit](https://pre-commit.com/) — hook runner
 - JDK + Gradle — for `shared/`
 - [Xcode](https://developer.apple.com/xcode/) and [Tuist](https://tuist.dev/) — for the `iosApp/` host
+- [Android SDK](https://developer.android.com/studio) (platform 36, an `arm64-v8a` emulator image) — for the `androidApp/` host
 
 ## Setup
 
@@ -29,8 +30,9 @@ pre-commit run --all-files
 ## Project structure
 
 - `guest/` — a self-contained MoonBit module (its own `moon.mod`), compiled to `wasm`. This is the "guest" side of a wasm host/guest relationship, the same shape used by the sibling project `mbt-wasmkit-ios` (there, the host is Swift/WasmKit; here, it is Kotlin/Chasm).
-- `shared/` — the KMP module consuming `guest.wasm` via Chasm's build-time Kotlin binding generator, targeting `jvm` and `iosSimulatorArm64`.
+- `shared/` — the KMP module consuming `guest.wasm` via Chasm's build-time Kotlin binding generator, targeting `jvm`, `iosSimulatorArm64`, and `android`.
 - `iosApp/` — the Tuist-managed Xcode project embedding `shared` as a Kotlin/Native framework, via the `embedAndSignAppleFrameworkForXcode` direct-integration task.
+- `androidApp/` — a plain `com.android.application` module depending on `shared` as a regular Gradle project dependency.
 - `docs/todo.md` — the log of what's been verified, what broke, and why. Read it before changing the `guest`/`shared` boundary.
 
 ## Development workflow
@@ -43,9 +45,11 @@ pre-commit run --all-files
 | `cd guest && moon check` | Type-check `guest/` without building |
 | `cd guest && moon info` | Regenerate `guest/`'s `.mbti` interface file |
 | `just verify` | Run the full `guest/` CI-equivalent check locally |
-| `./gradlew lintKotlin` / `formatKotlin` | Lint / auto-format `shared/`'s Kotlin sources |
-| `./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test` | Run `shared/` tests on both targets |
+| `./gradlew lintKotlin` / `formatKotlin` | Lint / auto-format Kotlin sources across all modules |
+| `./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test :shared:testAndroidHostTest` | Run `shared/` tests on the fast (non-device) targets |
+| `./gradlew :shared:connectedAndroidDeviceTest` | Run `shared/` tests on a connected Android emulator/device |
 | `just ios-generate` | `build-guest-wasm`, then generate the Tuist-managed `iosApp/` Xcode project |
+| `./gradlew :androidApp:installDebug` | Build and install `androidApp/` on a connected Android emulator/device |
 
 Before opening a pull request touching `guest/`, run:
 
@@ -72,7 +76,7 @@ This project follows **Red → Green → Refactor** (Detroit-school TDD):
 
 **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `tidy`, `test`, `chore`, `ci`, `perf`
 
-**Scope**: area name when the change targets one specific part of the tree (`guest`, `shared`, `iosApp`); omit for project-wide changes.
+**Scope**: area name when the change targets one specific part of the tree (`guest`, `shared`, `iosApp`, `androidApp`); omit for project-wide changes.
 
 **Subject**: imperative mood, 72 characters max, no trailing period.
 
@@ -90,7 +94,7 @@ docs: record Milestone 1 binding-generation results
 2. Follow the Red → Green → Refactor cycle for `guest/` changes.
 3. Run `just verify` and commit any resulting diffs.
 4. If the change touches `guest/`'s exported API, run `moon info` (inside `guest/`) and verify the `.mbti` diff is expected.
-5. If the change affects `shared/`/`iosApp/`, confirm the relevant platform target still builds and runs — `./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test` and/or a simulator run via `just ios-generate`.
+5. If the change affects `shared/`/`iosApp/`/`androidApp/`, confirm the relevant platform target still builds and runs — `./gradlew :shared:jvmTest :shared:iosSimulatorArm64Test :shared:testAndroidHostTest`, and/or a simulator run via `just ios-generate` or an emulator run via `./gradlew :shared:connectedAndroidDeviceTest`.
 6. Update `docs/todo.md` if the change resolves an open question or surfaces a new one — this file is the project's primary record, more so than commit messages alone.
 7. Open a pull request.
 
