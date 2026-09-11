@@ -22,6 +22,7 @@ verify:
 # touches shared/ — Chasm's codegen fails immediately without this file.
 build-guest-wasm:
     cd guest && moon build --target wasm --release
+    mkdir -p shared/src/commonMain/resources
     cp guest/_build/wasm/release/build/mbt_chasm_kmp_guest.wasm shared/src/commonMain/resources/guest.wasm
 
 # Generate the Tuist-managed Xcode project for the iOS host. Requires

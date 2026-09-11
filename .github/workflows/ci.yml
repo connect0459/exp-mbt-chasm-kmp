@@ -26,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0 # private repo: paths-filter's own fetch of the pre-push commit needs auth, which persist-credentials:false strips
           persist-credentials: false
 
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
@@ -131,6 +132,7 @@ jobs:
         run: |
           moon update
           moon build --target wasm --release
+          mkdir -p ../shared/src/commonMain/resources
           cp _build/wasm/release/build/mbt_chasm_kmp_guest.wasm ../shared/src/commonMain/resources/guest.wasm
 
       - name: Kotlin lint (kotlinter)
@@ -161,6 +163,7 @@ jobs:
         run: |
           moon update
           moon build --target wasm --release
+          mkdir -p ../shared/src/commonMain/resources
           cp _build/wasm/release/build/mbt_chasm_kmp_guest.wasm ../shared/src/commonMain/resources/guest.wasm
 
       - name: Run JVM and iOS simulator tests
