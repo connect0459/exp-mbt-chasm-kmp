@@ -60,6 +60,11 @@ val generateGuestWasmBytes =
     }
 
 kotlin {
+    // Pins the JDK Gradle uses for jvm/Android compilation regardless of
+    // the invoking shell's JAVA_HOME (matches CI's actions/setup-java
+    // version) — no env var to set or forget.
+    jvmToolchain(21)
+
     jvm()
     iosSimulatorArm64 {
         // Required for the `embedAndSignAppleFrameworkForXcode` Gradle task
